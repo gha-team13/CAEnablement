@@ -1,0 +1,85 @@
+Here are simple test cases demonstrating how to validate FIDO2 workstation sign-in both with and without the use of Microsoft Intune, based on the provided engineering documentation:
+
+### Test Case 1: Workstation Authentication Managed by Microsoft Intune
+
+**Objective:** Verify native passwordless sign-in on a Microsoft Entra joined Windows workstation where the security key policy is deployed via Intune.
+
+* **Prerequisites:**
+* The workstation is joined directly to Microsoft Entra ID.
+* Administrators have used the Microsoft Intune admin center to set **Use security keys for sign-in** to **Enabled** under the Windows Hello for Business enrollment configurations, or they have deployed a targeted custom Intune OMA-URI profile.
+* A YubiKey or FIDO2 security key is registered to the test user's account.
+
+
+* **Step-by-Step Execution:**
+1. Boot the Windows workstation to the logon screen.
+2. Click on **Sign-in options** and select the **FIDO Security Key** icon.
+3. Connect the YubiKey to the USB port when prompted.
+4. Enter the FIDO2 PIN in the secure Windows Hello dialog.
+5. Touch the flashing contact sensor on the YubiKey.
+
+
+* **Expected Result:**
+* Windows Hello verifies the signature, and the user is authenticated and logged into the desktop environment successfully without needing a password.
+
+
+
+---
+
+### Test Case 2: Workstation Authentication Without Intune
+
+**Objective:** Verify native passwordless sign-in on a workstation that is not managed by Intune, relying instead on a manual registry modification, a provisioning package, or Group Policy.
+
+* **Prerequisites:**
+* The workstation meets the minimum OS requirements but does not utilize Intune.
+* The FIDO2 credential provider has been enabled using an alternative method: installing a provisioning package created via Windows Configuration Designer, applying a registry modification, or enabling the **Turn on security key sign-in** Group Policy Object (GPO) for hybrid environments.
+* A FIDO2 security key is registered to the test user's account.
+
+
+* **Step-by-Step Execution:**
+1. Power on the workstation and navigate to the Windows login screen.
+2. Click on **Sign-in options** and verify that the **Security Key** credential provider icon is successfully displayed.
+3. Select the Security Key option and insert the YubiKey into the device.
+4. Enter the FIDO2 PIN and perform the physical touch gesture.
+
+
+* **Expected Result:**
+* The workstation validates the FIDO2 credential and successfully logs the user into the local machine.
+
+
+Here is a test case for validating authentication behavior when multiple accounts are registered to a single security key, based on the provided engineering and meeting notes:
+
+### Test Case: Multiple Account Behavior on a Single Security Key
+
+**Objective:** Validate the authentication behavior and account selection process when a single FIDO2 security key contains multiple Microsoft Entra accounts[cite: 1, 2].
+
+**Prerequisites:**
+
+* A FIDO2 security key, such as a YubiKey 5 Series, which is capable of holding up to 25 resident keys.
+* Two distinct Microsoft Entra accounts, such as a standard user account and a test or Dev account[cite: 1, 2].
+* Both accounts must be registered to the exact same physical security key.
+
+
+
+**Step-by-Step Execution:**
+
+1. Register the first account (e.g., Prod or Standard account) to the FIDO2 security key.
+
+
+2. Register the second account (e.g., Dev or Test account) to the same FIDO2 security key, which will require using the same PIN.
+
+
+3. Attempt to sign in or unlock a Windows device using the security key from the Windows lock screen.
+4. Insert the key, enter the FIDO2 PIN, and perform the physical touch gesture[cite: 1, 2].
+5. Observe which account the Windows device automatically logs into.
+
+
+6. Next, open a web browser and navigate to a WebAuthn-supported site or application.
+7. Initiate a security key sign-in and observe the account selection prompt.
+
+**Expected Result:**
+
+* When signing in or unlocking a Windows device, the system will automatically default to the last account that was added to the key[cite: 1, 2].
+* The Windows lock screen will not provide a native method or prompt to manually select which of the multiple registered accounts to use.
+
+
+* Conversely, when authenticating via WebAuthn in a browser, the interface will allow the user to select the specific account they wish to use for authentication.
